@@ -1,25 +1,23 @@
 <script>
-  import {createEventDispatcher} from 'svelte';
+  import { createEventDispatcher } from "svelte";
+  import ListOptions from "./ListOptions.svelte";
 
   export let label = "Field Label";
   export let name = "field-name";
-  export let options = [
-    { value: "", label: "Choose one" },
-  ];
+  export let options = [{ value: "", label: "Choose one" }];
   export let selected = options[0];
 
   let isMenuShow = false;
   const dispatch = createEventDispatcher();
-
-  const selectItemHandler = (option) => {
-    dispatch('change', {name:name, value: option})
-    isMenuShow = false;
-  };
   const toggleMenu = () => (isMenuShow = !isMenuShow);
+  const changeHandler = (event) => {
+    isMenuShow = false;
+    dispatch("change", { ...event.detail });
+  };
 </script>
 
 <div>
-  <label for="{name}">{label}</label>
+  <label for={name}>{label}</label>
   <div class="relative mt-1">
     <button type="button" on:click={toggleMenu}>
       <span class="label">{selected.label}</span>
@@ -27,27 +25,13 @@
         <i class="ri-arrow-right-s-fill" class:show={isMenuShow} />
       </span>
     </button>
-    <ul class:hide={!isMenuShow}>
-      {#each options as opt}
-        <li
-          on:click={() => selectItemHandler(opt)}
-          class:active={selected.value === opt.value}
-        >
-          <span class="label">{opt.label}</span>
-          {#if selected.value === opt.value}
-          <span class="icon">
-            <i class="ri-check-line" />
-          </span>
-          {/if}
-        </li>
-      {/each}
-    </ul>
+    <ListOptions on:change={changeHandler} {name} {options} {selected} {isMenuShow} />
   </div>
 </div>
 
 <style lang="postcss">
   label {
-    @apply block text-sm font-medium text-gray-700;
+    @apply block text-base font-medium text-gray-900;
   }
   button {
     @apply relative w-full border border-gray-300 rounded-md;
@@ -59,31 +43,12 @@
     @apply block truncate;
   }
   .icon {
-    @apply absolute inset-y-0 right-0 flex items-center pr-3;
+    @apply absolute inset-y-0 right-0 flex items-center pr-2;
   }
-  button > .icon {
-    @apply pr-2;
-  }
-  button > .icon > i {
+  i {
     @apply text-xl text-gray-400;
   }
-  button > .icon > i.show {
+  i.show {
     @apply rotate-90;
-  }
-  ul {
-    @apply absolute z-10 mt-1 py-1 w-full bg-white shadow-lg rounded-md;
-    @apply ring-1 ring-black ring-opacity-10 text-sm;
-    @apply max-h-60 overflow-auto focus:outline-none;
-  }
-  ul.hide {
-    @apply transition ease-in duration-100 opacity-0;
-    @apply w-0 h-0;
-  }
-  li {
-    @apply py-2 pl-3 pr-9 relative select-none;
-    @apply text-gray-900 hover:text-white hover:bg-indigo-500;
-  }
-  li.active {
-    @apply text-indigo-600 hover:text-white;
   }
 </style>
